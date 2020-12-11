@@ -11,9 +11,13 @@
         <link rel="stylesheet" href="static/spatial/assets/css/normalize.css">
         <link rel="stylesheet/less" href="static/spatial/assets/less/style.less">
        <!--<script src="static/static/spatial/assets/less.min.js"></script>-->
+        <script src="https://cdn.bootcdn.net/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script src="https://cdn.bootcdn.net/ajax/libs/less.js/3.13.1-alpha.1/less.min.js"></script>
         <script src="static/spatial/assets/js/modernizr.js"></script>
         <script src="static/spatial/assets/js/echarts.min.js"></script>
+
+        <script src="static/static/spatial/assets/js/jquery.scrollTo.js"></script>
+        <script src="static/static/spatial/assets/js/results.js"></script>
     </head>
     <body>
       <a id="top"></a>
@@ -41,68 +45,35 @@
         <div id="ahmiaResultsPage">
           <div class="resultsSubheader">
             <p>
-              Found <span class="resultNumber" id="totalResults">1,450</span> matches.
-              Displaying <span class="resultNumber" id="pageResultBegin">1</span> of <span class="resultNumber" id="pageResultEnd">20</span>.
+              Found <span class="resultNumber" id="totalResults">{{ num_total }}</span> matches.
+              Displaying <span class="resultNumber" id="pageResultBegin">1</span> of <span class="resultNumber" id="pageResultEnd">50</span>.
             </p>
           </div>
-          <ol class="searchResults">
-            <li class="result"  id="onion_key">
-              <p>
-              GlobaLeaks Error! :( Your browser is not running Javascript, and It's required to use GlobaLeaks
-              anonymous submission client, because is entirely Javascript based. It's common believe that Javascript ...
-              </p>
-              <p class="metadata">
-                <cite>positive/negative</cite> -
-                <span class="publish_date" data-timestamp="0">last seen 14 hours ago</span>-
-                <a title="Author of this weibo">Author</a>
-              </p>
+          <ol class="searchResults" style="max-width: 70%">
+            {%  for result in results %}
+            {% if result['_source']['sentiment']=='Positive' %}
+                <li class="result", style="background: greenyellow; border: 2px solid #3e3c45;">
+            {% else %}
+                <li class="result", style="background: palevioletred; border: 2px solid #3e3c45;">
+            {% endif %}
+            <p> {{ result['_source']['text'] }}</p>
+            <p class="metadata", align="right">
+                <cite>{{ result['_source']['sentiment'] }}</cite>-
+                <span class="publish_date" data-timestamp="0">{{ result['_source']['created_at'] }}</span>-
+                <a title="Author of this weibo">{{ result['_source']['screen_name'] }}</a>
+            </p>
             </li>
-            <li class="result" class="selectedItem">
-              <h4><a href="#">Hidden Service Title</a></h4>
-              <p>
-              GlobaLeaks Error! :( Your browser is not running Javascript, and It's required to use GlobaLeaks
-              anonymous submission client, because is entirely Javascript based. It's common believe that Javascript ...
-              </p>
-              <p class="metadata">
-                <cite>some.onion</cite> &mdash;
-                <span class="lastSeen" data-timestamp="0">last seen 14 hours ago</span> &mdash;
-                <a href="#" title="Report this link to us">Report Abuse</a>
-              </p>
-            </li>
-            <li class="result"  class="selectedItem">
-              <h4><a >en Service Title</a></h4>
-              <p>
-              GlobaLeaks Error! :( Your browser is not running Javascript, and It's required to use GlobaLeaks
-              anonymous submission client, because is entirely Javascript based. It's common believe that Javascript ...
-              </p>
-              <p class="metadata">
-                <cite>some.onion</cite> &mdash;
-                <span class="lastSeen" data-timestamp="0">last seen 14 hours ago</span> &mdash;
-                <a href="#" title="Report this link to us">Report Abuse</a>
-              </p>
-            </li>
-            <li class="result" href="#" class="selectedItem">
-              <h4><a href="#">Hidden Service Title</a></h4>
-              <p>
-              GlobaLeaks Error! :( Your browser is not running Javascript, and It's required to use GlobaLeaks
-              anonymous submission client, because is entirely Javascript based. It's common believe that Javascript ...
-              </p>
-              <p class="metadata">
-                <cite>some.onion</cite> &mdash;
-                <span class="lastSeen" data-timestamp="0">last seen 14 hours ago</span> &mdash;
-                <a href="#" title="Report this link to us">Report Abuse</a>
-              </p>
-            </li>
+            {% endfor %}
           </ol>
           <div class="pager">
-            <ul>
-              <li class="endcap limited"><a href="#">Previous</a></li>
-              <li class="active"><a href="#"><span class="sr">Page </span>1</a></li>
-              <li><a href="#"><span class="sr">Page </span>2</a></li>
-              <li><a href="#"><span class="sr">Page </span>3</a></li>
-              <li><a href="#"><span class="sr">Page </span>4</a></li>
-              <li class="endcap"><a href="#">Next</a></li>
-            </ul>
+{#            <ul>#}
+{#              <li class="endcap limited"><a href="#">Previous</a></li>#}
+{#              <li class="active"><a href="#"><span class="sr">Page </span>1</a></li>#}
+{#              <li><a href="#"><span class="sr">Page </span>2</a></li>#}
+{#              <li><a href="#"><span class="sr">Page </span>3</a></li>#}
+{#              <li><a href="#"><span class="sr">Page </span>4</a></li>#}
+{#              <li class="endcap"><a href="#">Next</a></li>#}
+{#            </ul>#}
             <p class="footer"><a href="#top">Back to Top</a></p>
           </div>
         </div>
@@ -111,9 +82,7 @@
         </div>
       </div>
 
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-      <script src="static/static/spatial/assets/js/jquery.scrollTo.js"></script>
-      <script src="static/static/spatial/assets/js/results.js"></script>
+
     </body>
 </html>
 <script>
@@ -130,7 +99,8 @@
       },
       //x轴，日期
       xAxis:{
-          data:["6天前","5天前","4天前","3天前","2天前","1天前"]
+          {#data:["6天前","5天前","4天前","3天前","2天前","1天前"]#}
+          data: {{ num_datetime_sorted[0]|tojson }}
       },
       //y轴没有显式设置，根据值自动生成y轴
       yAxis:{},
@@ -138,11 +108,13 @@
       series:[{
           name:'正面情感',
           type:'line',
-          data:[40,20,35,60,55,10],
+          {#data:[40,20,35,60,55,10],#}
+          data: {{ num_datetime_sorted[2]|tojson }},
           color : '#FF6c00'
       },{name:'负面情感',
           type:'line',
-          data:[50,50,50,50,50,50],
+          {#data:[50,50,50,50,50,50],#}
+          data: {{ num_datetime_sorted[1]|tojson }},
           color : '#004cFF'
       }]
   };
@@ -165,8 +137,9 @@
       series:[{
           name:'比例',
           type:'pie',
-          data:[{"value": 50,
-    "name": "正面情感"},{"value": 50,
+          data:[{"value": {{ num_positive|tojson }},
+    "name": "正面情感"},
+              {"value": {{ num_negative|tojson }},
     "name": "负面情感"}]
       }]
   };
